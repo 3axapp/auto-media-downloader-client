@@ -57,7 +57,7 @@ make test              # тесты
 4. Установить службу (командная строка **от администратора**):
     ```
     amd-client.exe install -config C:\ProgramData\amd-client\config.json
-    sc start amd-client
+    sc start auto-media-downloader-client
     ```
     `install` создаёт службу с автозапуском, настраивает журнал событий, кладёт
     `C:\ProgramData\amd-client\torrent-done.bat` и печатает строки для настройки
@@ -76,12 +76,12 @@ make test              # тесты
 Если не хочется полагаться на `install`:
 
 ```
-sc create amd-client ^
+sc create auto-media-downloader-client ^
   binPath= "\"C:\Program Files\amd-client\amd-client.exe\" run -config \"C:\ProgramData\amd-client\config.json\"" ^
   start= auto ^
   DisplayName= "auto-media-downloader client"
-sc failure amd-client reset= 86400 actions= restart/60000/restart/60000/restart/60000
-sc start amd-client
+sc failure auto-media-downloader-client reset= 86400 actions= restart/60000/restart/60000/restart/60000
+sc start auto-media-downloader-client
 ```
 
 Обёртку для transmission в этом случае надо создать самому —
@@ -95,7 +95,7 @@ sc start amd-client
 ## Удаление
 
 ```
-sc stop amd-client
+sc stop auto-media-downloader-client
 amd-client.exe uninstall
 ```
 
