@@ -13,6 +13,7 @@ import (
 
 	"github.com/3axapp/auto-media-downloader-client/internal/api"
 	"github.com/3axapp/auto-media-downloader-client/internal/config"
+	"github.com/3axapp/auto-media-downloader-client/internal/hook"
 	"github.com/3axapp/auto-media-downloader-client/internal/install"
 	"github.com/3axapp/auto-media-downloader-client/internal/logging"
 	"github.com/3axapp/auto-media-downloader-client/internal/runner"
@@ -52,6 +53,8 @@ func dispatch(args []string, w io.Writer) int {
 	case "run":
 		return cmdRun(*configPath, w)
 	case "done":
+		return cmdDone(*configPath, w)
+	case "check":
 		return cmdCheck(*configPath, w)
 	case "install":
 		return cmdInstall(*configPath, w)
@@ -129,6 +132,22 @@ func build(configPath string, console bool) (*config.Config, *runner.Runner, io.
 	}
 	client := api.New(cfg.BaseURL, cfg.APIToken, time.Duration(cfg.HTTPTimeout))
 	return cfg, runner.New(cfg, client, st, sp, log), closer, nil
+}
+
+func cmdDone(configPath string, w io.Writer) int {
+	cfg, err := config.Load(configPath)
+	if err != nil {
+		fmt.Fprintf(w, "отчёт не записан: %v\n", err)
+		return 1
+	}
+	report, err := hook.Run(cfg, os.Getenv, time.Now())
+	if err != nil {
+		fmt.Fprintf(w, "отчёт не записан: %v\n", err)
+		return 1
+	}
+	fmt.Fprintf(w, "отчёт поставлен в очередь: задание %d, торрент %s\n",
+		report.JobID, report.ContentName)
+	return 0
 }
 
 func cmdCheck(configPath string, w io.Writer) int {
